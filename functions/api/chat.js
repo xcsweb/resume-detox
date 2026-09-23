@@ -7,6 +7,10 @@ const ALLOWED_BASES = new Set([
   'api.moonshot.cn',
   'qianfan.baidubce.com',
   'api.siliconflow.cn',
+  'api.hunyuan.cloud.tencent.com',
+  'spark-api-open.xf-yun.com',
+  'api.minimax.chat',
+  'api.stepfun.com',
   'api.openai.com'
 ]);
 

@@ -328,10 +328,23 @@ button{font-family:inherit;cursor:pointer}
         <button class="preset" type="button" data-base="https://api.moonshot.cn/v1" data-model="moonshot-v1-8k">Kimi · 月之暗面</button>
         <button class="preset" type="button" data-base="https://qianfan.baidubce.com/v2" data-model="ernie-4.0-turbo-8k">百度千帆</button>
         <button class="preset" type="button" data-base="https://api.siliconflow.cn/v1" data-model="Qwen/Qwen2.5-7B-Instruct">硅基流动</button>
+        <button class="preset" type="button" data-base="https://api.hunyuan.cloud.tencent.com/v1" data-model="hunyuan-turbos-latest">腾讯混元</button>
+        <button class="preset" type="button" data-base="https://spark-api-open.xf-yun.com/v1" data-model="4.0Ultra">讯飞星火</button>
+        <button class="preset" type="button" data-base="https://api.minimax.chat/v1" data-model="MiniMax-Text-01">MiniMax</button>
+        <button class="preset" type="button" data-base="https://api.stepfun.com/v1" data-model="step-2-mini">阶跃星辰</button>
         <button class="preset" type="button" data-base="https://api.openai.com/v1" data-model="gpt-4o-mini">OpenAI</button>
       </div>
-      <div class="note">点击自动填入 Base URL 与模型名，Key 需自行填写。模型名/接入点以各厂商最新文档为准。用 node server.js 打开本页时自动走本地代理转发（不受浏览器跨域限制）；直接双击打开 HTML 时为浏览器直连，跨域支持各服务不一，保存前建议「测试连接」。</div>
+      <div class="note">点击自动填入 Base URL 与模型名，Key 需自行填写。模型名/接入点以各厂商最新文档为准（讯飞星火 Key 格式为 APIKey:APISecret）。保存前建议「测试连接」。</div>
     </div>
+    <details class="mfield">
+      <summary style="cursor:pointer">已实测：哪些厂商双击直开可用，哪些需代理？</summary>
+      <div class="note">
+        ✅ 浏览器直连可用：DeepSeek、通义千问、智谱 GLM、Kimi、百度千帆、硅基流动、腾讯混元、MiniMax、阶跃星辰<br>
+        ⚠️ 建议走代理：豆包·火山方舟（预检通过，但部分报错信息浏览器读不到）<br>
+        🔒 必须走代理：讯飞星火、OpenAI（OpenAI 国内网络直连不通，在线托管版的海外代理可直接用）<br>
+        在线托管版已内置代理，以上全部开箱即用；本地双击打开 HTML 时，🔒 的厂商请改用 <code>node server.js</code> 打开本页（Node 安装流程见 README）。
+      </div>
+    </details>
     <div class="mfield">
       <label for="cfgBase">API Base URL</label>
       <input id="cfgBase" placeholder="https://api.deepseek.com/v1" spellcheck="false">
@@ -349,7 +362,8 @@ button{font-family:inherit;cursor:pointer}
     </div>
     <div class="mfield">
       <label for="cfgTemp">温度</label>
-      <input id="cfgTemp" type="number" min="0" max="2" step="0.1" value="0.7">
+      <input id="cfgTemp" type="number" min="0" max="2" step="0.1" value="0.3">
+      <div class="note">控制输出随机性：0~0.3 最稳定（评分/JSON 解析不易出错，默认 0.3）；想让改写更有文采可调到 0.5~0.7。</div>
     </div>
     <div class="mrow">
       <span class="mtest" id="mTest"></span>
@@ -385,7 +399,7 @@ function toast(msg){ var h=$("hint"); h.textContent=msg; h.classList.add("err");
 
 /* ============ 设置 ============ */
 var CFG_KEY="hrbiz_cfg_v1";
-var cfg={base:"https://api.deepseek.com/v1",key:"",model:"deepseek-chat",temp:0.7};
+var cfg={base:"https://api.deepseek.com/v1",key:"",model:"deepseek-chat",temp:0.3};
 try{ var saved=JSON.parse(localStorage.getItem(CFG_KEY)||"{}"); cfg=Object.assign(cfg,saved); }catch(e){}
 function saveCfg(){ try{ localStorage.setItem(CFG_KEY,JSON.stringify(cfg)); }catch(e){} }
 function hasModel(){ return !!(cfg.key && cfg.model && cfg.base); }
@@ -433,7 +447,7 @@ document.getElementById("presets").addEventListener("click",function(e){
 $("btnSaveCfg").addEventListener("click",function(){
   cfg.base=($("cfgBase").value||"").trim().replace(/\/+$/,"")||"https://api.deepseek.com/v1";
   cfg.key=$("cfgKey").value.trim(); cfg.model=$("cfgModel").value.trim()||"deepseek-chat";
-  cfg.temp=parseFloat($("cfgTemp").value); if(isNaN(cfg.temp)) cfg.temp=0.7;
+  cfg.temp=parseFloat($("cfgTemp").value); if(isNaN(cfg.temp)) cfg.temp=0.3;
   saveCfg(); closeModal(); updateNote();
 });
 function apiErr(r){
