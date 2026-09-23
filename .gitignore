@@ -1,0 +1,9 @@
+node_modules/
+npm-debug.log*
+.DS_Store
+Thumbs.db
+
+_test/
+_shot_*.png
+TRAE投稿文案.md
+小红书推广文案.md

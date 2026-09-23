@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HR 批注简历改造｜TRAE 求职作品秀</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23BC2F2F'/%3E%3Cpath d='M9 21l5-11 3 7 2-4 4 8z' fill='%23FFF7F5'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
+<style>
+:root{
+  --paper:#F5F0E8; --card:#FFFDF8; --ink:#2B2623; --ink2:#7A6F66;
+  --red:#BC2F2F; --reddk:#8F2323; --redbg:#F9E6E4; --line:#E4DDD2;
+  --green:#2F6B4F; --greenbg:#E7F1EA;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--paper);color:var(--ink)}
+body{font-family:"Noto Sans SC",system-ui,sans-serif;line-height:1.7;-webkit-font-smoothing:antialiased}
+::selection{background:#F3C6C2}
+a{color:var(--red)}
+.wrap{max-width:1280px;margin:0 auto;padding:0 22px}
+button{font-family:inherit;cursor:pointer}
+
+/* ===== Header ===== */
+.topbar{position:sticky;top:0;z-index:30;background:rgba(245,240,232,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.topbar .wrap{display:flex;align-items:center;gap:14px;height:58px}
+.brand{font-weight:700;font-size:15px;letter-spacing:.02em;display:flex;align-items:center;gap:8px}
+.brand .dot{width:10px;height:10px;border-radius:3px;background:var(--red);display:inline-block}
+.tag{margin-left:auto;font-size:12px;color:var(--red);border:1px solid rgba(188,47,47,.4);border-radius:999px;padding:3px 10px;white-space:nowrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:7px;font-weight:600;border:1px solid transparent;transition:background .2s,transform .05s;min-height:44px;padding:9px 18px;font-size:14px}
+.btn:active{transform:translateY(1px)}
+.btn-main{background:var(--red);color:#FFF8F6;padding:9px 22px}
+.btn-main:hover{background:var(--reddk)}
+.btn-ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn-ghost:hover{border-color:var(--red);color:var(--red)}
+.btn-sm{min-height:44px;padding:9px 16px;font-size:14px}
+.btn[disabled]{opacity:.55;cursor:not-allowed}
+:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+
+/* ===== Intro ===== */
+.intro{padding:38px 0 6px}
+.eyebrow{font-size:12px;letter-spacing:.22em;color:var(--red);font-weight:700;margin-bottom:10px}
+.intro h1{font-family:"Noto Serif SC","Songti SC",serif;font-size:34px;font-weight:900;line-height:1.3;letter-spacing:.01em}
+.intro .sub{margin-top:12px;color:var(--ink2);font-size:15px;max-width:760px;line-height:1.9}
+.intro .sub b{color:var(--red);font-weight:600}
+
+/* ===== 输入区 ===== */
+.inputzone{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:20px 22px;margin-top:26px;box-shadow:0 2px 0 rgba(38,34,32,.03)}
+.inputzone textarea{
+  width:100%;min-height:120px;resize:vertical;border:1px solid var(--line);border-radius:6px;
+  padding:12px 14px;font-size:14px;font-family:inherit;line-height:1.8;color:var(--ink);background:#FCFAF5;
+}
+.inputzone textarea:focus{outline:none;border-color:var(--red)}
+.inputrow{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:12px}
+.filebtn{position:relative;overflow:hidden}
+.filebtn input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
+.hint{font-size:12px;color:var(--ink2);margin-left:auto}
+.hint.err{color:var(--red)}
+.loading{display:none;align-items:center;gap:8px;font-size:13px;color:var(--red)}
+.loading.show{display:inline-flex}
+.spin{width:13px;height:13px;border:2px solid rgba(188,47,47,.25);border-top-color:var(--red);border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* ===== 双栏舞台 ===== */
+.stage{position:relative;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:22px;margin-top:26px;align-items:start}
+#linkSvg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:5;display:none}
+.colhead{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.colhead .ct{font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:20px;font-weight:700;color:var(--red)}
+.colhead .csub{font-size:12px;color:var(--ink2)}
+.colhead .dot{width:8px;height:8px;border-radius:50%;background:var(--red);flex:none}
+
+/* 左卡：原稿+批注 */
+.resume{
+  background:var(--card);border:1px solid var(--line);border-radius:6px;padding:28px 28px 24px;
+  box-shadow:0 2px 0 rgba(38,34,32,.04);
+  font-family:"Noto Serif SC","Songti SC","SimSun",serif;position:relative;
+}
+#annotSvg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3;display:none}
+.resume .rname{font-size:25px;font-weight:900;letter-spacing:.04em}
+.resume .rtag{margin-top:4px;font-size:13.5px;color:var(--ink2)}
+.resume h4{
+  margin-top:18px;font-size:14.5px;font-weight:900;color:var(--ink);
+  border-left:3px solid var(--red);padding-left:8px;letter-spacing:.05em;
+}
+.rgrid{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:20px;margin-top:4px;align-items:start}
+.rbody p,.rbody li{font-size:14.5px;line-height:1.95;color:#3A342E;margin-top:9px}
+.rbody p[data-line]+p[data-line],.rbody li[data-line]+li[data-line]{margin-top:4px}
+.rbody ul{list-style:none;margin-top:4px}
+.rbody ul li{padding-left:14px;position:relative}
+.rbody ul li::before{content:"";position:absolute;left:0;top:.78em;width:5px;height:5px;border-radius:50%;background:var(--red)}
+.rbody [data-seq]{cursor:pointer;border-radius:3px;transition:background .25s}
+.rbody [data-seq].hl{background:#FDE9E4}
+.aiword{border-radius:2px;padding:0 3px;transition:background .35s ease,color .35s ease}
+.aiword.show{background:var(--redbg);color:var(--reddk);text-decoration:underline wavy var(--red);text-decoration-thickness:1px;text-underline-offset:3px}
+.mnum{color:var(--red);font-weight:900;font-size:12.5px;margin-right:3px;opacity:0;transition:opacity .3s;font-family:"Noto Sans SC",sans-serif}
+.rbody h4{display:flex;align-items:center;flex-wrap:wrap;gap:2px}
+.rbody h4 .keep-ic,.rbody h4 .peer-ic,.rbody h4 .undo-ic,.rbody h4 .lock-ic{margin-left:6px;padding:1px 9px;border-radius:999px;border:1px solid #D8D2C8;background:transparent;color:#7A7168;font-size:11.5px;cursor:pointer;line-height:1.7;font-family:inherit;vertical-align:middle;transition:all .2s}
+.rbody h4 .lk-badge{margin-left:8px;vertical-align:middle}
+.rbody h4 .peer-ic:hover{color:#BC2F2F;border-color:#BC2F2F;background:#F9E6E4}
+.rbody h4 .keep-ic:hover{color:#3A5A7C;border-color:#3A5A7C;background:#EEF1F5}
+.rbody h4 .lock-ic:hover{color:#2E7D4F;border-color:#2E7D4F;background:#EEF6F0}
+.rbody h4 .undo-ic:hover{color:#BC2F2F;border-color:#BC2F2F;background:#F9E6E4}
+.modbody{border-left:3px solid #2E7D4F;background:#F4FAF6;padding:8px 12px;margin:9px 0;border-radius:8px;line-height:1.95;font-size:14.5px;color:#3A342E}
+.modbody .lk-badge{margin-right:8px}
+#resumeInner.editing .modbody,#resumeInner.editing .rbody p,#resumeInner.editing .rbody li{outline:1px dashed #C9D3E0;outline-offset:2px;cursor:text}
+.genbar{display:flex;align-items:center;gap:12px;margin:4px 0 10px;flex-wrap:wrap}
+.gennote{font-size:12.5px;color:#7A7168;line-height:1.6}
+.mnum.show{opacity:1}
+.rmargin{border-left:2px dashed var(--red);padding-left:14px;display:flex;flex-direction:column;gap:14px;padding-top:4px}
+.mbubble{
+  font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:13.5px;line-height:1.65;
+  color:var(--reddk);background:var(--redbg);border:1px solid rgba(188,47,47,.25);
+  border-radius:4px;padding:7px 10px;position:relative;
+  opacity:0;transform:translateX(10px);transition:opacity .45s cubic-bezier(.22,1,.36,1),transform .45s cubic-bezier(.22,1,.36,1);
+}
+.mbubble.show{opacity:1;transform:none}
+.mbubble .bnum{display:block;font-size:11.5px;font-weight:700;letter-spacing:.08em;margin-bottom:2px;opacity:.85}
+.rverdict{
+  margin-top:18px;background:var(--reddk);color:#FBE7E7;border-radius:4px;padding:12px 16px;
+  opacity:0;transform:translateY(6px);transition:opacity .5s ease,transform .5s ease;
+}
+.rverdict.show{opacity:1;transform:none}
+.rverdict .vlabel{font-size:11.5px;letter-spacing:.1em;color:#E8B9B9;font-weight:700;margin-bottom:3px}
+.rverdict .vtext{font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:16px;line-height:1.7}
+.empty{
+  text-align:center;padding:56px 20px;color:var(--ink2);font-size:14px;
+  border:1px dashed var(--line);border-radius:6px;background:var(--card);
+}
+.empty .big{font-size:28px;color:var(--red);opacity:.5;margin-bottom:8px}
+.actions{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap}
+.modelnote{font-size:12px;color:var(--ink2);margin-top:10px}
+
+/* 右卡：优化版 */
+.optcard{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:26px 28px 24px;box-shadow:0 2px 0 rgba(38,34,32,.04)}
+.optbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.optstatus{font-size:12px;color:var(--ink2);margin-left:auto}
+.optcard .otag{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;letter-spacing:.14em;color:var(--green);border:1px solid rgba(47,107,79,.35);border-radius:999px;padding:3px 10px;margin-bottom:12px}
+.optcard .oname{font-family:"Noto Serif SC",serif;font-size:24px;font-weight:900;letter-spacing:.04em;margin-top:2px}
+.optcard .ometa{font-size:13px;color:var(--ink2);margin-top:3px}
+.optbody{font-family:"Noto Serif SC","Songti SC","SimSun",serif;border-radius:4px}
+.optbody.editing{outline:2px dashed var(--green);outline-offset:6px;background:#FBFDF8;padding:2px 8px}
+.optbody h4{font-size:14.5px;font-weight:900;border-left:3px solid var(--green);padding-left:8px;margin-top:16px;color:var(--ink)}
+.optbody p,.optbody li{font-size:14px;line-height:1.9;color:#3A342E;margin-top:8px}
+.optbody p[data-line]+p[data-line],.optbody li[data-line]+li[data-line]{margin-top:4px}
+.optbody ul{list-style:none;margin-top:4px}
+.optbody ul li{padding-left:14px;position:relative}
+.optbody ul li::before{content:"";position:absolute;left:0;top:.8em;width:5px;height:5px;border-radius:50%;background:var(--green)}
+.optbody [data-seq]{cursor:pointer;border-radius:3px;transition:background .25s}
+.optbody [data-seq].hlr{background:#E7F1EA}
+.fix{background:var(--greenbg);color:var(--green);border-radius:2px;padding:0 2px;text-decoration:underline dotted rgba(47,107,79,.6);text-underline-offset:3px;cursor:help}
+.srcnote{margin-top:18px;padding-top:14px;border-top:1px dashed var(--line);font-size:12.5px;color:var(--ink2)}
+
+/* ===== 设置弹窗 ===== */
+.modal-mask{position:fixed;inset:0;background:rgba(43,38,35,.45);display:none;align-items:center;justify-content:center;z-index:50;padding:20px}
+.modal-mask.show{display:flex}
+.modal{background:var(--card);border-radius:10px;width:100%;max-width:500px;padding:26px 28px;box-shadow:0 12px 40px rgba(43,38,35,.2);max-height:86vh;overflow:auto}
+.modal h3{font-size:19px;font-weight:900;display:flex;align-items:center;justify-content:space-between}
+.modal .x{background:none;border:none;font-size:22px;color:var(--ink2);line-height:1;padding:2px 6px}
+.modal .x:hover{color:var(--red)}
+.mfield{margin-top:16px}
+.mfield label{display:block;font-size:13px;font-weight:600;margin-bottom:6px}
+.mfield input{width:100%;border:1px solid var(--line);border-radius:6px;padding:9px 11px;font-size:14px;background:#FCFAF5;font-family:inherit}
+.mfield input:focus{outline:none;border-color:var(--red)}
+.mfield .note{font-size:12px;color:var(--ink2);margin-top:5px;line-height:1.7}
+.presets{display:flex;flex-wrap:wrap;gap:8px}
+.preset{font-size:12.5px;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:#FCFAF5;color:var(--ink)}
+.preset:hover{border-color:var(--red);color:var(--red)}
+.preset.on{border-color:var(--red);color:var(--red);background:#F9E6E4}
+.mrow{display:flex;gap:10px;margin-top:18px;justify-content:flex-end;align-items:center}
+.mrow .btn{margin-left:0}
+.mtest{font-size:12px;color:var(--ink2);margin-right:auto}
+.peer-modal{max-width:640px}
+.peer-card{border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-top:10px;background:#FCFAF5}
+.peer-card:first-of-type{margin-top:2px}
+.peer-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.peer-name{font-weight:700;font-size:14px;color:var(--red)}
+.peer-badge{font-size:11px;color:var(--green);border:1px solid rgba(47,107,79,.4);border-radius:999px;padding:1px 8px}
+.peer-salary{font-size:12px;font-weight:900;color:var(--red);background:var(--redbg);border:1px solid rgba(188,47,47,.25);border-radius:999px;padding:2px 10px;margin-left:6px}
+.peer-why{font-size:12.5px;color:var(--green);margin-top:5px;line-height:1.6}
+.peer-body{font-family:"Noto Serif SC","Songti SC",serif;font-size:13px;color:#3A342E;line-height:1.75;margin-top:8px;white-space:pre-wrap;border-left:2px solid var(--line);padding-left:10px;max-height:150px;overflow:auto}
+.peer-actions{margin-top:9px;display:flex;gap:8px;align-items:center}
+.peer-src{font-size:11.5px;color:var(--ink2)}
+.peer-loading{font-size:12.5px;color:var(--red);padding:10px 0}
+.peer-orig{font-size:13px;color:#3A342E;background:#FFF;border:1px solid var(--line);border-radius:8px;padding:9px 12px;line-height:1.7;font-family:"Noto Serif SC","Songti SC",serif}
+.keep-ic,.undo-ic{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--ink2);font-size:11px;cursor:pointer;vertical-align:1px;line-height:1.6;font-family:inherit}
+.keep-ic:hover{color:#3A5A7C;border-color:#3A5A7C;background:#EEF1F5}
+.undo-ic:hover{color:var(--red);border-color:var(--red);background:#F9E6E4}
+.lk-badge{display:inline-block;margin-left:6px;padding:0 7px;border-radius:999px;font-size:10.5px;line-height:1.7;vertical-align:1px;font-weight:700}
+.lk-badge.b-peer,.lk-badge.b-edit{color:var(--green);border:1px solid rgba(47,107,79,.45);background:#EEF6F0}
+.lk-badge.b-keep{color:#3A5A7C;border:1px solid rgba(58,90,124,.45);background:#EEF1F5}
+.sent-keep{background:#F6F7F9}
+.rbody p .keep-ic,.rbody li .keep-ic,.rbody p .undo-ic,.rbody li .undo-ic{margin-left:6px;opacity:.75}
+.rbody p:hover .keep-ic,.rbody li:hover .keep-ic,.rbody p:hover .undo-ic,.rbody li:hover .undo-ic{opacity:1}
+#resumeInner .rbody p,#resumeInner .rbody li{transition:background .2s}
+#resumeInner .rbody p.sent-keep,#resumeInner .rbody li.sent-keep{background:#F6F7F9}
+#resumeInner.editing .rbody p,#resumeInner.editing .rbody li{outline:1px dashed #C9D3E0;outline-offset:2px;cursor:text}
+#resumeInner.editing .peer-ic,#resumeInner.editing .keep-ic,#resumeInner.editing .undo-ic,#resumeInner.editing .lk-badge{display:none}
+.peer-ic{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--ink2);font-size:11px;cursor:pointer;vertical-align:1px;line-height:1.6;font-family:inherit}
+.peer-ic:hover{color:var(--red);border-color:var(--red);background:#F9E6E4}
+.rbody p .peer-ic,.rbody li .peer-ic{margin-left:6px;opacity:.75}
+.rbody p:hover .peer-ic,.rbody li:hover .peer-ic{opacity:1}
+
+/* ===== Footer ===== */
+.footer{padding:34px 0 44px;color:var(--ink2);font-size:12.5px;line-height:1.9}
+.footer .linkrow{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:6px}
+
+/* ===== 打印：一页纸简历 ===== */
+@media print{
+  @page{size:A4;margin:12mm}
+  body{background:#fff}
+  .topbar,.intro,.inputzone,.actions,.footer,.modal-mask{display:none!important}
+  .stage{display:block!important;margin:0;max-width:none}
+  .stage>div:first-child{display:none!important}
+  #linkSvg{display:none!important}
+  .wrap{max-width:none;padding:0}
+  .colhead{display:none!important}
+  .optcard{border:none!important;box-shadow:none!important;border-radius:0!important;padding:0!important}
+  .optbar{display:none!important}
+  .optbody{font-size:11.5pt;line-height:1.55}
+  .optbody p,.optbody li{margin-top:5px}
+  .optbody [data-seq]{cursor:default}
+  .fix{background:none;color:#000;text-decoration:none}
+}
+
+@media (max-width:900px){
+  .stage{grid-template-columns:1fr}
+  .rgrid{grid-template-columns:1fr}
+  .rmargin{border-left:none;border-top:2px dashed var(--red);padding-left:0;padding-top:12px;gap:12px}
+  #linkSvg,#annotSvg{display:none!important}
+  .intro h1{font-size:26px}
+  .hint{margin-left:0;width:100%}
+  .inputzone textarea,.mfield input{font-size:16px}
+  .btn{min-height:44px}
+  .btn-sm{min-height:38px}
+  .peer-ic,.keep-ic,.undo-ic{padding:5px 12px;font-size:13px;line-height:1.5;margin-left:6px}
+  .rbody h4 .peer-ic,.rbody h4 .keep-ic,.rbody h4 .undo-ic,.rbody h4 .lock-ic{padding:5px 13px;font-size:13px;min-height:34px;line-height:1.5;margin-left:6px}
+  .lk-badge{padding:3px 9px;font-size:12px;line-height:1.6}
+  .rbody p,.rbody li{font-size:15px}
+  .rbody .modbody{font-size:15px}
+  .mbubble{font-size:14.5px}
+  .resume .rtag{font-size:14px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand"><span class="dot"></span>HR 批注简历改造</div>
+    <span class="tag">#TRAE求职作品秀</span>
+    <button class="btn btn-ghost btn-sm" id="btnSettings" type="button">设置 · 绑定大模型</button>
+  </div>
+</header>
+
+<section class="wrap">
+  <div class="intro">
+    <div class="eyebrow">HR 视角 · 求职作品</div>
+    <h1>左边批改，右边优化——一份简历的 HR 批注现场</h1>
+    <p class="sub">把简历贴进来（或上传文件），HR 像老师批作业一样在原稿上圈词、旁批、总评；右边同步给出一份<b>改写后的优化版</b>。点击任意句子或段落，两侧会<b>用连接线关联</b>，方便逐句对照。默认用内置规则引擎跑，<b>在设置里绑定大模型</b>后，批注与改写由模型生成，质量更高。绑定模型后简历内容会发送到你选择的模型服务商；不绑定模型时内置规则也能跑。</p>
+  </div>
+
+  <div class="inputzone">
+    <textarea id="resumeText" placeholder="在这里粘贴你的简历文本……&#10;&#10;也可以点下方「上传简历」按钮选择 .txt / .md / .pdf 文件"></textarea>
+    <div class="inputrow">
+      <button class="btn btn-main" id="btnGo" type="button">开始批改</button>
+      <label class="btn btn-ghost filebtn">上传简历<input type="file" id="fileInput" accept=".txt,.md,.pdf" aria-label="上传简历文件"></label>
+      <button class="btn btn-ghost" id="btnSample" type="button">用示例简历</button>
+      <button class="btn btn-ghost" id="btnClear" type="button">清空</button>
+      <span class="loading" id="loading"><span class="spin"></span><span id="loadingText">正在让模型批改…</span></span>
+      <span class="hint" id="hint">支持 .txt / .md / .pdf；扫描版 PDF 请粘贴文本</span>
+    </div>
+  </div>
+
+  <div class="stage" id="stage">
+    <svg id="linkSvg" aria-hidden="true"></svg>
+    <div>
+      <div class="colhead"><span class="dot"></span><span class="ct">原稿 · HR 批注</span><span class="csub">点击句子可与右栏对应</span></div>
+      <div class="resume" id="resumeBox">
+        <svg id="annotSvg" aria-hidden="true"></svg>
+        <div class="empty" id="resumeEmpty"><div class="big">空白</div>批改后的简历原稿会显示在这里，批注落在文字上。</div>
+        <div id="resumeInner" style="display:none"></div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-ghost" id="btnReplay" type="button">重新批注</button>
+        <span class="modelnote" id="modelNote">当前：本地规则引擎</span>
+      </div>
+    </div>
+
+    <div>
+      <div class="colhead"><span class="dot" style="background:var(--green)"></span><span class="ct">HR 推荐版</span><span class="csub">可编辑 · 可保存 · 可下载 PDF</span></div>
+      <div class="genbar" id="genBar">
+        <button class="btn btn-main" id="btnGenOpt" type="button">生成 HR 推荐版</button>
+        <span class="gennote">先在左栏处理模块（同行替换后可锁定），再一键生成；锁定内容原样保留</span>
+      </div>
+      <div class="optcard" id="optCard">
+        <div class="optbar" id="optBar" style="display:none">
+          <button class="btn btn-ghost btn-sm" id="btnEdit" type="button">编辑</button>
+          <button class="btn btn-ghost btn-sm" id="btnSaveOpt" type="button">保存</button>
+          <button class="btn btn-ghost btn-sm" id="btnCancelOpt" type="button" style="display:none">取消</button>
+          <button class="btn btn-sm" id="btnDownload" type="button">下载 PDF</button>
+          <button class="btn btn-ghost btn-sm" id="btnResetOpt" type="button" style="display:none">恢复默认</button>
+          <span class="optstatus" id="optStatus"></span>
+        </div>
+        <div class="empty" id="optEmpty"><div class="big">待生成 HR 推荐版</div>在左栏处理模块（同行替换后可锁定）后，点上方「生成 HR 推荐版」按钮，优化版会出现在这里。</div>
+        <div id="optInner" style="display:none"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="linkrow"><span>用 TRAE 做的求职作品 · 绑定模型后内容发送给所选模型厂商</span></div>
+    <div>复刻提示词："左边原稿带红笔批注，右边优化版可编辑，支持逐句关联、上传简历和绑定国内大模型"。</div>
+  </div>
+</section>
+
+<div class="modal-mask" id="modalMask">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="绑定大模型设置">
+    <h3>绑定大模型 <button class="x" id="btnCloseModal" type="button" aria-label="关闭">×</button></h3>
+    <div class="mfield">
+      <label>快捷选择厂商（OpenAI 兼容）</label>
+      <div class="presets" id="presets">
+        <button class="preset" type="button" data-base="https://api.deepseek.com/v1" data-model="deepseek-chat">DeepSeek</button>
+        <button class="preset" type="button" data-base="https://dashscope.aliyuncs.com/compatible-mode/v1" data-model="qwen-plus">通义千问</button>
+        <button class="preset" type="button" data-base="https://ark.cn-beijing.volces.com/api/v3" data-model="doubao-pro-32k">豆包 · 火山方舟</button>
+        <button class="preset" type="button" data-base="https://open.bigmodel.cn/api/paas/v4" data-model="glm-5.1">智谱 GLM</button>
+        <button class="preset" type="button" data-base="https://api.moonshot.cn/v1" data-model="moonshot-v1-8k">Kimi · 月之暗面</button>
+        <button class="preset" type="button" data-base="https://qianfan.baidubce.com/v2" data-model="ernie-4.0-turbo-8k">百度千帆</button>
+        <button class="preset" type="button" data-base="https://api.siliconflow.cn/v1" data-model="Qwen/Qwen2.5-7B-Instruct">硅基流动</button>
+        <button class="preset" type="button" data-base="https://api.openai.com/v1" data-model="gpt-4o-mini">OpenAI</button>
+      </div>
+      <div class="note">点击自动填入 Base URL 与模型名，Key 需自行填写。模型名/接入点以各厂商最新文档为准。用 node server.js 打开本页时自动走本地代理转发（不受浏览器跨域限制）；直接双击打开 HTML 时为浏览器直连，跨域支持各服务不一，保存前建议「测试连接」。</div>
+    </div>
+    <div class="mfield">
+      <label for="cfgBase">API Base URL</label>
+      <input id="cfgBase" placeholder="https://api.deepseek.com/v1" spellcheck="false">
+      <div class="note">填到 /v1 或 /v2 即可，调用时自动拼 /chat/completions。</div>
+    </div>
+    <div class="mfield">
+      <label for="cfgKey">API Key</label>
+      <input id="cfgKey" type="password" placeholder="粘贴你的 API Key" spellcheck="false">
+      <div class="note">仅保存在你本地浏览器（localStorage），不会上传到别处。</div>
+    </div>
+    <div class="mfield">
+      <label for="cfgModel">模型名 / 接入点</label>
+      <input id="cfgModel" placeholder="deepseek-chat" spellcheck="false">
+      <div class="note">以你账号可用的模型名或接入点为准（如火山方舟可填 ep-... 接入点）。</div>
+    </div>
+    <div class="mfield">
+      <label for="cfgTemp">温度</label>
+      <input id="cfgTemp" type="number" min="0" max="2" step="0.1" value="0.7">
+    </div>
+    <div class="mrow">
+      <span class="mtest" id="mTest"></span>
+      <button class="btn btn-ghost btn-sm" id="btnTest" type="button">测试连接</button>
+      <button class="btn btn-main" id="btnSaveCfg" type="button">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-mask" id="peerMask">
+  <div class="modal peer-modal">
+    <h3>这一句，同行怎么写 <button class="x" id="btnClosePeer" type="button" aria-label="关闭">×</button></h3>
+    <div class="mfield">
+      <label>你的原句（换一种写法，内容还是你自己的经历）</label>
+      <div class="peer-orig" id="peerOrig"></div>
+    </div>
+    <div class="mfield">
+      <label>同行写法 · 每种都附"HR 为什么选它"</label>
+      <div id="peerStyles"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+/* ============ 工具 ============ */
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
+function norm(s){ return String(s).replace(/\s+/g,""); }
+function escR(s){ return s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"); }
+function toast(msg){ var h=$("hint"); h.textContent=msg; h.classList.add("err"); setTimeout(function(){ h.textContent="支持 .txt / .md / .pdf；扫描版 PDF 请粘贴文本"; h.classList.remove("err"); },4200); }
+
+/* ============ 设置 ============ */
+var CFG_KEY="hrbiz_cfg_v1";
+var cfg={base:"https://api.deepseek.com/v1",key:"",model:"deepseek-chat",temp:0.7};
+try{ var saved=JSON.parse(localStorage.getItem(CFG_KEY)||"{}"); cfg=Object.assign(cfg,saved); }catch(e){}
+function saveCfg(){ try{ localStorage.setItem(CFG_KEY,JSON.stringify(cfg)); }catch(e){} }
+function hasModel(){ return !!(cfg.key && cfg.model && cfg.base); }
+/* 优先走同源代理 /api/chat 绕开浏览器跨域限制（本地 node server.js 或方案B容器部署）；
+   同源没有代理时（纯静态托管），首次请求 404 自动降级为直连厂商，本次会话内生效 */
+var useProxy=null;
+var PROXY_PREFIX="/api/chat?base=";
+function apiEndpoint(base){
+  var b=(base||cfg.base||"").replace(/\/+$/,"");
+  var loc=window.location;
+  if((loc.protocol==="http:"||loc.protocol==="https:")&&useProxy!==false){
+    return PROXY_PREFIX+encodeURIComponent(b);
+  }
+  return b+"/chat/completions";
+}
+/* 统一请求封装：代理端点返回非 JSON 的 404（静态托管不存在 /api/chat）时降级直连重试一次 */
+function chatFetch(opts,base){
+  var url=apiEndpoint(base);
+  return fetch(url,opts).then(function(r){
+    var ct=(r.headers.get("content-type")||"");
+    if(r.status===404&&useProxy!==false&&url.indexOf(PROXY_PREFIX)===0&&ct.indexOf("json")===-1){
+      useProxy=false;
+      return chatFetch(opts,base);
+    }
+    return r;
+  });
+}
+
+var modalMask=$("modalMask");
+$("btnSettings").addEventListener("click",openModal);
+$("btnCloseModal").addEventListener("click",closeModal);
+modalMask.addEventListener("click",function(e){ if(e.target===modalMask) closeModal(); });
+function openModal(){
+  $("cfgBase").value=cfg.base; $("cfgKey").value=cfg.key; $("cfgModel").value=cfg.model; $("cfgTemp").value=cfg.temp;
+  $("mTest").textContent=""; modalMask.classList.add("show");
+}
+function closeModal(){ modalMask.classList.remove("show"); }
+document.getElementById("presets").addEventListener("click",function(e){
+  var b=e.target.closest? e.target.closest(".preset") : null;
+  if(!b) return;
+  $("cfgBase").value=b.getAttribute("data-base");
+  $("cfgModel").value=b.getAttribute("data-model");
+  $("mTest").textContent="已填入 "+b.textContent.trim()+"，请填 Key";
+});
+$("btnSaveCfg").addEventListener("click",function(){
+  cfg.base=($("cfgBase").value||"").trim().replace(/\/+$/,"")||"https://api.deepseek.com/v1";
+  cfg.key=$("cfgKey").value.trim(); cfg.model=$("cfgModel").value.trim()||"deepseek-chat";
+  cfg.temp=parseFloat($("cfgTemp").value); if(isNaN(cfg.temp)) cfg.temp=0.7;
+  saveCfg(); closeModal(); updateNote();
+});
+function apiErr(r){
+  return r.json().catch(function(){return {};}).then(function(d){
+    if(d&&d.error){ var m=(d.error.message||d.error.code||"").toString(); return new Error(m||("HTTP "+r.status)); }
+    if(!r.ok) return new Error("HTTP "+r.status);
+    return null;
+  });
+}
+$("btnTest").addEventListener("click",function(){
+  var base=($("cfgBase").value||"").trim().replace(/\/+$/,"");
+  var key=$("cfgKey").value.trim(); var model=$("cfgModel").value.trim()||"deepseek-chat";
+  if(!key){ $("mTest").textContent="请先填 API Key"; return; }
+  var t=$("mTest"); t.textContent="测试中…";
+  chatFetch({
+    method:"POST",
+    headers:{"Content-Type":"application/json","Authorization":"Bearer "+key},
+    body:JSON.stringify({model:model,messages:[{role:"user",content:"ping"}],max_tokens:4})
+  },base||cfg.base).then(function(r){ return apiErr(r).then(function(e){ if(e) throw e; return r.json(); }); })
+    .then(function(){ t.textContent="连接正常"; })
+    .catch(function(e){ t.textContent="失败："+(e.message||"网络错误")+"（可能被 CORS 拦截或账号/余额问题）"; });
+});
+function updateNote(){
+  $("modelNote").textContent = hasModel() ? ("当前：模型 · "+cfg.model) : "当前：本地规则引擎（设置里绑定大模型可升级）";
+}
+
+/* ============ 本地规则引擎 ============ */
+var BUZZ=["深度赋能","全面拉通","完整闭环","底层逻辑","心智","势能","方法论","沉淀","复盘","抽象","矩阵化","精细化","对齐","抓手","颗粒度","组合拳","共建","赋能","拉通","打通","闭环","放大","渗透","触达","强有力","标杆","显著提升","进一步提升","有效提升","持续优化","保驾护航","高度契合","深度融合","不断突破","助力","助推","落地","强化","夯实","驱动","引擎","护城河","第二曲线","飞轮","结构化","体系化","全景"];
+var ADJ=["显著","大力","深入","全面","有效","大幅","极大","稳步","切实","扎实","充分","高度"];
+var FIX={"深度赋能":"负责","全面拉通":"协调","完整闭环":"跑通流程","底层逻辑":"原理","心智":"需求","势能":"增长","方法论":"方法","沉淀":"整理","复盘":"总结","抽象":"提炼","矩阵化":"多账号","精细化":"细致","对齐":"同步","抓手":"切入点","组合拳":"多管齐下","赋能":"支持","拉通":"协调","打通":"打通流程","闭环":"走通流程","放大":"提升","渗透":"覆盖","触达":"联系","强有力":"扎实","标杆":"引领","显著提升":"提升（补具体数字）","进一步提升":"提升","有效提升":"提升","持续优化":"迭代","保驾护航":"保障","深度融合":"结合","不断突破":"增长","助力":"帮助","助推":"推动","落地":"执行","强化":"加强","夯实":"巩固","驱动":"推动","引擎":"动力","护城河":"优势","第二曲线":"新方向","飞轮":"良性循环","结构化":"条理","体系化":"成体系"};
+
+/* 兼容旧浏览器的分句（不用 lookbehind） */
+function splitSents(blockText){
+  var parts=String(blockText).split(/([。！？；\n])/);
+  var out=[],buf="";
+  for(var i=0;i<parts.length;i++){
+    var p=parts[i];
+    if(p==="") continue;
+    if(i%2===1){ var s=(buf+p).trim(); if(s) out.push(s); buf=""; }
+    else buf+=p;
+  }
+  if(buf.trim()) out.push(buf.trim());
+  return out;
+}
+/* 统一的句子序列：本地引擎与渲染共用，保证批注定位一致 */
+function makeSents(text){
+  var lines=text.split(/\r?\n/).map(function(l){return l.trim();}).filter(function(l){return l.length;});
+  var name=null, meta=null, sents=[];
+  lines.forEach(function(l,li){
+    if(li===0 && l.length<=10 && !/[。！？，,;；:]/.test(l)){ name=l; return; }
+    if(li===1 && name && l.length<=34 && !/[。！？;；:]/.test(l)){ meta=l; return; }
+    var isH = l.length<=44 && (/^[（(]?19\d{2}|^[（(]?20\d{2}/.test(l)||/^(教育|工作|项目|实习|校园|技能|自我评价|荣誉|证书|学历|培训|作品|个人简介|基本信息|联系方式|经历)/.test(l)||/^[#\d一二三四五六七八九十]+[、.．]?/.test(l));
+    var isLi = !isH && /^[-•*▪◦·]|^\d+[.、]/.test(l);
+    var t = isLi ? l.replace(/^[-•*▪◦·]\s*/,"").replace(/^\d+[.、]\s*/,"") : l;
+    if(isH){ sents.push({t:t,k:"h",li:false,line:li}); }
+    else{
+      var parts=splitSents(t); if(!parts.length) parts=[t];
+      parts.forEach(function(p){ sents.push({t:p,k:"p",li:isLi,line:li}); });
+    }
+  });
+  return {name:name,meta:meta,sents:sents};
+}
+function analyzeLocal(text,states){
+  var info=makeSents(text);
+  mods=makeMods(info);
+  var annotations=[]; var sentRepl=[]; var replaced=0;
+  info.sents.forEach(function(s,si){
+    if(s.k==="h"){ sentRepl.push([]); return; }
+    var mi=modIdxOf(si);
+    var st=mi>=0&&states&&states[mi];
+    if(st&&st.lock){ sentRepl.push([]); return; }
+    var raw=s.t;
+    var hits=[];
+    BUZZ.forEach(function(w){ if(raw.indexOf(w)>-1) hits.push(w); });
+    var adjs=[];
+    ADJ.forEach(function(w){ if(raw.indexOf(w)>-1) adjs.push(w); });
+    var repl=[];
+    if(hits.length){
+      var hasNum=/\d/.test(raw);
+      var comment;
+      if(hits.length>=2) comment="抽象动词连用——"+hits.slice(0,3).join("、")+"，写了几个词，还是没说清你具体做了什么。";
+      else if(hits[0]==="显著提升"||hits[0]==="有效提升"||hits[0]==="进一步提升"||hits[0]==="大幅") comment="没有数字——"+hits[0]+"了什么？从哪到哪、提升了多少？简历里没有数字等于没说。";
+      else if(hits[0]==="底层逻辑"||hits[0]==="心智"||hits[0]==="势能"||hits[0]==="护城河"||hits[0]==="飞轮") comment="大词堆砌——"+hits[0]+"是行话里的行话，HR 读完像看了三篇公众号。";
+      else if(hits[0]==="方法论"||hits[0]==="沉淀"||hits[0]==="复盘"||hits[0]==="抽象"||hits[0]==="抓手") comment="套路化表达——把正常动作包装成黑话（"+hits[0]+"），反而看不见你干了什么。";
+      else comment="黑话嫌疑——"+hits[0]+"，换成能数得清、看得见的动作。";
+      if(hasNum) comment+=" 这句有数字，加分，但动词仍是空的。";
+      annotations.push({sentence:raw,quote:hits[0],comment:comment,fix:FIX[hits[0]]||"换成具体动作",seq:si});
+      hits.forEach(function(w){ repl.push({word:w,fix:FIX[w]||"换成具体动作"}); });
+      replaced+=hits.length;
+    } else if(adjs.length){
+      annotations.push({sentence:raw,quote:adjs[0],comment:"空洞形容——"+adjs[0]+"是个评价词，不是事实。删掉它，补上可验证的结果。",fix:"删掉"+adjs[0]+"，补具体数字或事实",seq:si});
+    } else if(raw.length>52 && !/\d/.test(raw)){
+      annotations.push({sentence:raw,quote:"",comment:"一句话塞了太多信息，且没有数字。拆成 2–3 句，每句给一个可量化的结果。",fix:"拆分句子 + 补充量化数据",seq:si});
+    }
+    sentRepl.push(repl);
+  });
+  var total=annotations.length;
+  var verdict;
+  if(total===0) verdict="整体可读，但建议给每个项目补上数字与结果，让经历更有说服力。";
+  else if(total<=2) verdict="AI 味不重，但"+total+"处表述偏空。把黑话换成动作、补上数字，简历立刻不一样。";
+  else verdict="典型 AI 味简历："+total+"处问题。HR 会在 10 秒内扫完并合上——黑话、空洞形容、无数字是三大雷区。";
+  var optimized=buildOptimized(info,sentRepl,states,null);
+  return {annotations:annotations.slice(0,12),verdict:verdict,optimized:optimized,sentRepl:sentRepl,info:info};
+}
+function applyReplTxt(t,repl){
+  var text=t;
+  var list=(repl||[]).slice().sort(function(a,b){return b.word.length-a.word.length;});
+  if(!list.length) return text;
+  var re=new RegExp("("+list.map(function(r){return escR(r.word);}).join("|")+")","g");
+  text=text.replace(re,function(m){
+    for(var i=0;i<list.length;i++){ if(list[i].word===m) return "\u0001"+i+"\u0001"; }
+    return m;
+  });
+  text=text.replace(/\u0001(\d+)\u0001/g,function(mm,idx){ return list[parseInt(idx,10)].fix||"换成具体动作"; });
+  return text;
+}
+function buildOptimized(info,sentRepl,states,rewrites){
+  var byLine={};
+  info.sents.forEach(function(s,si){
+    var txt;
+    var st=states&&states[si];
+    if(st&&st.lock) txt=st.text;
+    else if(rewrites&&rewrites[si]!=null&&rewrites[si]!==undefined) txt=rewrites[si];
+    else if(sentRepl&&sentRepl[si]&&sentRepl[si].length) txt=applyReplTxt(s.t,sentRepl[si]);
+    else txt=s.t;
+    if(s.li) txt="- "+txt;
+    (byLine[s.line]=byLine[s.line]||[]).push(txt);
+  });
+  var lines=Object.keys(byLine).sort(function(a,b){return a-b;}).map(function(k){return byLine[k].join("");});
+  var head=[];
+  if(info.name) head.push(info.name);
+  if(info.meta) head.push(info.meta);
+  return head.concat(lines).join("\n");
+}
+
+/* ============ 模型调用 ============ */
+/* 通用：POST chat/completions，并从返回文本中解析出 JSON 对象（不做字段校验，由调用方按需校验） */
+function chatJSON(prompt){
+  var ctrl=new AbortController();
+  var to=setTimeout(function(){ ctrl.abort(); },30000);
+  return chatFetch({
+    method:"POST",
+    headers:{"Content-Type":"application/json","Authorization":"Bearer "+cfg.key},
+    body:JSON.stringify({model:cfg.model,messages:[{role:"user",content:prompt}],temperature:cfg.temp}),
+    signal:ctrl.signal
+  }).then(function(r){ return apiErr(r).then(function(e){ if(e) throw e; return r.json(); }); })
+    .then(function(d){
+      clearTimeout(to);
+      var content=d.choices&&d.choices[0]&&d.choices[0].message&&d.choices[0].message.content||"";
+      var m=content.match(/\{[\s\S]*\}/);
+      return JSON.parse(m?m[0]:content);
+    }).catch(function(e){ clearTimeout(to); throw e; });
+}
+/* 模型定向改写：输入未处理句+批注，输出改写句列表 */
+function modelRewrite(items){
+  var prompt="你是一名资深 HR。下面每个对象是一条简历原句及其批注（quote=圈出的词、comment=问题、fix=替换建议）。\n"
+    +"请按批注针对性地改写每一句：只改表达、不编造新事实、不删除原有信息。\n"
+    +"严格输出 JSON（不要 markdown 代码块）：{\"rewrites\":[\"改写后句子1\",\"改写后句子2\",...]}，数量与输入一致、顺序一致。\n"
+    +"输入：\n"+JSON.stringify(items);
+  return chatJSON(prompt).then(function(obj){
+    if(!obj||!obj.rewrites||!obj.rewrites.length) throw new Error("响应格式不对");
+    return obj.rewrites;
+  });
+}
+function callModel(text){
+  var prompt="你是一位毒舌但专业的 HR，帮求职者批改简历并给出改写版。\n"
+    +"简历原文（可能带 markdown 符号）：\n```\n"+text+"\n```\n"
+    +"严格返回 JSON（不要 markdown 代码块），格式：\n"
+    +"{\n"
+    +"  \"annotations\": [{\"sentence\": \"被批注的完整原句\", \"quote\": \"被圈出的词\", \"comment\": \"一句毒舌批注\", \"fix\": \"替换建议\"}],\n"
+    +"  \"verdict\": \"总评一句话\",\n"
+    +"  \"optimized\": \"改写后的完整简历文本，保留原结构：姓名、意向在第一二行，小标题用 ##，列表用 -，不要空行\"\n"
+    +"}\n"
+    +"要求：annotations 3-8 条，批注要具体、毒舌、有梗，不要客套；optimized 是可直接使用的完整简历，段落顺序与原稿一致，每段改写后仍然单独成段，便于逐段对照。";
+  return chatJSON(prompt).then(function(obj){
+    if(!obj||!obj.optimized) throw new Error("响应格式不对");
+    return obj;
+  });
+}
+
+/* ============ 渲染：左栏 ============ */
+var sents=[];
+var critiqueTimers=[];
+var CN=["①","②","③","④","⑤","⑥","⑦","⑧","⑨","⑩","⑪","⑫"];
+function buildLeft(text){
+  var info=makeSents(text);
+  sents=info.sents.map(function(s){return s.t;});
+  var S=info.sents;
+  mods=makeMods(info);
+  var html="";
+  if(info.name) html+="<div class=\"rname\">"+esc(info.name)+"</div>";
+  if(info.meta) html+="<div class=\"rtag\">"+esc(info.meta)+"</div>";
+  html+="<div class=\"rgrid\"><div class=\"rbody\">";
+  var inUl=false;
+  mods.forEach(function(mo,m){
+    var st=modStates[m];
+    if(mo.h&&mo.si<S.length){
+      if(inUl){ html+="</ul>"; inUl=false; }
+      html+="<h4 data-mod=\""+m+"\" data-line=\""+S[mo.si].line+"\">"+esc(mo.h)+modBar(m,st)+"</h4>";
+    }
+    if(st&&st.lock){
+      if(inUl){ html+="</ul>"; inUl=false; }
+      html+="<div class=\"modbody\" data-seq=\""+mo.si+"\" data-mod=\""+m+"\" data-line=\""+(S[mo.si]?S[mo.si].line:"")+"\">"+esc(st.text)+"</div>";
+      return;
+    }
+    for(var k=mo.si+1;k<(mo.end===undefined?S.length:mo.end);k++){
+      var s=S[k];
+      if(s.li){
+        if(!inUl){ html+="<ul>"; inUl=true; }
+        html+="<li data-seq=\""+k+"\" data-line=\""+s.line+"\"><span class=\"mnum n"+k+"\"></span>"+esc(s.t)+"</li>";
+      }else{
+        if(inUl){ html+="</ul>"; inUl=false; }
+        html+="<p data-seq=\""+k+"\" data-line=\""+s.line+"\"><span class=\"mnum n"+k+"\"></span>"+esc(s.t)+"</p>";
+      }
+    }
+  });
+  if(inUl) html+="</ul>";
+  html+="</div><div class=\"rmargin\" id=\"rmargin\">"+buildMargin()+"</div></div>";
+  html+="<div class=\"rverdict\" id=\"rverdict\"><div class=\"vlabel\">HR 总评</div><div class=\"vtext\"></div></div>";
+  return html;
+}
+function buildMargin(){
+  var html="";
+  for(var i=0;i<12;i++) html+="<div class=\"mbubble b"+(i+1)+"\"><span class=\"bnum\">批注 "+(i+1)+"</span></div>";
+  return html;
+}
+
+/* ============ 模块状态机 ============
+ * 操作单元 = 模块（一个 h4 标题 + 其下所有句子）。
+ * modStates[m] 与 makeMods 返回的模块索引对应：
+ *   undefined/null = 未处理（HR 批注、AI 改写）
+ *   {lock:"peer", text} = 同行版（用户同行替换后的内容，AI 生成时保留）
+ *   {lock:"lock", text} = 锁定（同行替换后点击锁定，AI 生成时绝不动）
+ *   {lock:"keep", text} = 保持原样（AI 不批注不改写，右栏直接平移）
+ *   {lock:"edit", text} = 已编辑（手动编辑后自动锁定）
+ * 全部可撤销回未处理（恢复初始快照文本并重新批注）。
+ */
+var mods=[];
+var modStates=[];
+var SNAPSHOT="";
+var pendingPeerMap={};
+var pendingEditMap={};
+var pendingModMap={};
+function makeMods(info){
+  var ms=[]; var cur=null;
+  info.sents.forEach(function(s,i){
+    if(s.k==="h"){
+      if(cur) cur.end=i;
+      cur={si:i,h:s.t,sentIdx:[i]};
+      ms.push(cur);
+    } else if(cur){
+      cur.sentIdx.push(i);
+    }
+  });
+  if(cur) cur.end=info.sents.length;
+  if(!ms.length&&info.sents.length){
+    ms.push({si:0,h:"",sentIdx:[],end:info.sents.length});
+    info.sents.forEach(function(s,i){ ms[0].sentIdx.push(i); });
+  }
+  return ms;
+}
+function modIdxOf(si){
+  for(var m=0;m<mods.length;m++){
+    var mo=mods[m];
+    if(si>=mo.si&&(mo.end===undefined||si<mo.end)) return m;
+  }
+  return -1;
+}
+function modTextOf(ms,info,m){
+  var mo=ms[m]; if(!mo) return "";
+  var t=[];
+  if(mo.h) t.push(mo.h);
+  for(var i=mo.si+1;i<(mo.end===undefined?info.sents.length:mo.end);i++) t.push(info.sents[i].t);
+  return t.join("\n");
+}
+function modText(m,info){ return modTextOf(mods,info,m); }
+function rebuildMods(text){
+  var info=makeSents(text);
+  mods=makeMods(info);
+  var old=modStates||[];
+  var ns=new Array(mods.length);
+  var used=new Array(old.length);
+  mods.forEach(function(mo,m){
+    var curTxt=modText(m,info);
+    if(pendingPeerMap[curTxt]){ ns[m]={lock:"peer",text:curTxt}; return; }
+    for(var j=0;j<old.length;j++){
+      if(used[j]||!old[j]||!old[j].lock) continue;
+      if(old[j].text===curTxt){ ns[m]=old[j]; used[j]=true; break; }
+    }
+  });
+  mods.forEach(function(mo,m){
+    if(ns[m]!==undefined&&ns[m]!==null) return;
+    if(pendingModMap[m]) ns[m]={lock:"edit",text:modText(m,info)};
+  });
+  modStates=ns;
+  pendingPeerMap={};
+  pendingEditMap={};
+  pendingModMap={};
+}
+function modBar(m,st){
+  if(st&&st.lock){
+    var label=st.lock==="peer"?"同行版":(st.lock==="lock"?"锁定":(st.lock==="edit"?"已编辑":"保持原样"));
+    var cls=st.lock==="keep"?"b-keep":"b-"+st.lock;
+    var undo='<button class="undo-ic" data-mod="'+m+'" type="button" title="撤销处理，恢复原稿该模块并重新批注">撤销</button>';
+    if(st.lock==="peer"){
+      return '<span class="lk-badge '+cls+'">'+label+'</span><button class="lock-ic" data-mod="'+m+'" type="button" title="锁定该模块：AI 生成右侧简历时绝不对它做任何修改">锁定</button>'+undo;
+    }
+    return '<span class="lk-badge '+cls+'">'+label+'</span>'+undo;
+  }
+  return '<button class="peer-ic" data-mod="'+m+'" type="button" title="看同行怎么写，一键替换整个模块">同行</button>';
+}
+function textDiffHigh(a,b){
+  if(!a||!b) return true;
+  if(a===b) return false;
+  var la=a.split("\n").map(function(l){return l.trim();}).filter(function(l){return l.length;});
+  var lb=b.split("\n").map(function(l){return l.trim();}).filter(function(l){return l.length;});
+  var same=0, m=Math.min(la.length,lb.length);
+  for(var i=0;i<m;i++){ if(la[i]===lb[i]) same++; }
+  return same/Math.max(la.length,lb.length)<0.5;
+}
+var lastSource="";
+function resetRight(){
+  $("optEmpty").style.display="block";
+  $("optInner").style.display="none";
+  $("optStatus").textContent="";
+  setEditing(false);
+  setOptBar("none");
+}
+function runPipeline(useModel){
+  var text=$("resumeText").value.trim();
+  if(!text){ toast("先粘贴或上传一份简历"); return; }
+  if(textDiffHigh(SNAPSHOT,text)){ SNAPSHOT=text; modStates=[]; }
+  else if(!SNAPSHOT) SNAPSHOT=text;
+  rebuildMods(text);
+  lastSource=useModel?"model":"local";
+  $("resumeEmpty").style.display="none";
+  var inner=$("resumeInner");
+  inner.style.display="block";
+  inner.innerHTML=buildLeft(text);
+  resetCritique();
+  resetRight();
+  clearLink();
+  var lr=analyzeLocal(text,modStates);
+  if(lr.annotations.length) renderCritique(lr.annotations,lr.verdict,"local");
+  else { var v=$("rverdict"); v.classList.add("show"); v.querySelector(".vtext").textContent=lr.verdict; }
+  toast("批注完成：在左栏处理模块（同行替换 / 锁定）后，点\"生成 HR 推荐版\"");
+}
+function lockPeerMod(m){
+  var st=modStates[m];
+  if(!st||st.lock!=="peer"){ toast("请先对该模块做同行替换，再锁定"); return; }
+  modStates[m]={lock:"lock",text:st.text};
+  runPipeline(lastSource==="model");
+  toast("已锁定该模块：AI 生成右侧简历时原样保留，不会替换");
+}
+function undoMod(m){
+  var ta=$("resumeText");
+  var text=ta.value.trim();
+  var info=makeSents(text);
+  mods=makeMods(info);
+  var mo=mods[m]; if(!mo) return;
+  if(!(modStates[m]&&modStates[m].lock)){ toast("该模块尚未处理，无需撤销"); return; }
+  var curTxt=modText(m,info);
+  var snapInfo=makeSents(SNAPSHOT||text);
+  var smods=makeMods(snapInfo);
+  var restore="";
+  for(var j=0;j<smods.length;j++){
+    if(smods[j].h===mo.h){ restore=modTextOf(smods,snapInfo,j); break; }
+  }
+  if(!restore&&mo.h==="") restore=modTextOf(smods,snapInfo,0);
+  if(!restore){ toast("找不到原稿对应模块，无法撤销"); return; }
+  if(restore!==curTxt&&ta.value.indexOf(curTxt)>-1){
+    ta.value=ta.value.replace(curTxt,restore);
+  }
+  modStates[m]=null;
+  runPipeline(lastSource==="model");
+  toast("已撤销：恢复该模块原稿，重新批注并参与改写");
+}
+function genOpt(){
+  var text=$("resumeText").value.trim();
+  if(!text){ toast("先粘贴或上传一份简历"); return; }
+  var info=makeSents(text);
+  mods=makeMods(info);
+  var lr=analyzeLocal(text,modStates);
+  $("optEmpty").style.display="none";
+  var inner=$("optInner"); inner.style.display="block";
+  setOptBar("generated");
+  var useModel=hasModel();
+  if(useModel){
+    var items=[];
+    lr.info.sents.forEach(function(s,si){
+      if(s.k==="h") return;
+      var mi=modIdxOf(si);
+      if(mi<0||(modStates[mi]&&modStates[mi].lock)) return;
+      var anns=lr.annotations.filter(function(a){return a.seq===si;});
+      items.push({t:s.t,annos:anns});
+    });
+    if(items.length){
+      var loading=$("loading");
+      loading.classList.add("show"); $("loadingText").textContent="正在生成 HR 推荐版…"; $("btnGo").disabled=true;
+      modelRewrite(items).then(function(rws){
+        loading.classList.remove("show"); $("btnGo").disabled=false;
+        var rewrites={}; var k=0;
+        lr.info.sents.forEach(function(s,si){
+          if(s.k==="h") return;
+          var mi=modIdxOf(si);
+          if(mi<0||(modStates[mi]&&modStates[mi].lock)) return;
+          rewrites[si]=rws[k]?rws[k].trim():null; k++;
+        });
+        renderRight(text,lr.sentRepl,rewrites,"local",lr.annotations);
+      }).catch(function(e){
+        loading.classList.remove("show"); $("btnGo").disabled=false;
+        toast("模型生成失败（"+(e.message||"")+"），已用本地规则改写");
+        renderRight(text,lr.sentRepl,null,"local",lr.annotations);
+      });
+      return;
+    }
+  }
+  renderRight(text,lr.sentRepl,null,"local",lr.annotations);
+  toast("HR 推荐版已生成：同行版 / 锁定 / 锁定模块原样保留，其余按批注改写");
+}
+function renderCritique(annotations,verdict,src){
+  var matched=[]; var unmatched=[];
+  annotations.forEach(function(a){
+    if(src==="local" && typeof a.seq==="number"){ matched.push({a:a,j:a.seq}); return; }
+    var key=norm(a.sentence||"");
+    var found=false;
+    for(var j=0;j<sents.length;j++){
+      if(norm(sents[j])===key || (key.length>6 && norm(sents[j]).indexOf(key)>-1)){
+        matched.push({a:a,j:j}); found=true; break;
+      }
+    }
+    if(!found) unmatched.push(a);
+  });
+  var items=[];
+  matched.forEach(function(m){
+    var nEl=innerQ(".n"+m.j);
+    if(nEl&&CN[items.length]) nEl.textContent=CN[items.length];
+    var mb=innerQ(".b"+(items.length+1));
+    var aiSpans=[];
+    if(mb){ mb.querySelector(".bnum").textContent="批注 "+(items.length+1); mb.innerHTML+="<br>"+esc(m.a.comment); }
+    if(m.a.quote&&nEl){
+      var node=nEl.nextSibling;
+      if(node&&node.nodeType===3){
+        var qIdx=node.textContent.indexOf(m.a.quote);
+        if(qIdx>-1){
+          var span=document.createElement("span"); span.className="aiword"; span.textContent=m.a.quote;
+          var frag=document.createTextNode(node.textContent.slice(0,qIdx));
+          var rest=document.createTextNode(node.textContent.slice(qIdx+m.a.quote.length));
+          node.parentNode.insertBefore(frag,node);
+          node.parentNode.insertBefore(span,node);
+          node.parentNode.insertBefore(rest,node);
+          node.parentNode.removeChild(node);
+          aiSpans.push(span);
+        }
+      }
+    }
+    items.push({nEl:nEl,mb:mb,ai:aiSpans});
+  });
+  unmatched.forEach(function(a){
+    var mb=innerQ(".b"+(items.length+1));
+    if(mb){ mb.querySelector(".bnum").textContent="批注 "+(items.length+1)+"（全句）"; mb.innerHTML+="<br>"+esc(a.comment); }
+    items.push({nEl:null,mb:mb,ai:[]});
+  });
+  var total=items.length;
+  annotItems=items;
+  items.forEach(function(it,i){
+    critiqueTimers.push(setTimeout(function(){
+      if(it.nEl) it.nEl.classList.add("show");
+      it.ai.forEach(function(s){ s.classList.add("show"); });
+      if(it.mb) it.mb.classList.add("show");
+      setTimeout(drawAnnotLinks,470);
+    },250+i*380));
+  });
+  critiqueTimers.push(setTimeout(function(){
+    var v=$("rverdict"); v.classList.add("show"); v.querySelector(".vtext").textContent=verdict;
+  },250+total*380+120));
+}
+function innerQ(sel){ var inner=$("resumeInner"); return inner?inner.querySelector(sel):null; }
+var annotItems=[];
+function drawAnnotLinks(){
+  var svg=$("annotSvg"); var host=$("resumeBox");
+  if(!svg||!host) return;
+  if(window.innerWidth<=900){ svg.style.display="none"; return; }
+  var r=host.getBoundingClientRect();
+  svg.setAttribute("viewBox","0 0 "+r.width+" "+r.height);
+  svg.style.display="block"; svg.innerHTML="";
+  var NS="http://www.w3.org/2000/svg";
+  annotItems.forEach(function(it){
+    if(!it.mb||!it.nEl) return;
+    var target=it.ai&&it.ai.length?it.ai[0]:it.nEl;
+    var b=it.mb.getBoundingClientRect(), n=target.getBoundingClientRect();
+    if(!b.width||!n.width) return;
+    var x1=b.left-r.left, y1=b.top-r.top+b.height/2;
+    var x2=n.right-r.left+6, y2=n.top-r.top+n.height/2;
+    var dx=(x1-x2)*0.45;
+    var p=document.createElementNS(NS,"path");
+    p.setAttribute("d","M"+x1.toFixed(1)+" "+y1.toFixed(1)+" C"+(x1-dx).toFixed(1)+" "+y1.toFixed(1)+","+(x2+dx).toFixed(1)+" "+y2.toFixed(1)+","+x2.toFixed(1)+" "+y2.toFixed(1));
+    p.setAttribute("fill","none"); p.setAttribute("stroke","#BC2F2F"); p.setAttribute("stroke-width","1.6");
+    p.setAttribute("stroke-dasharray","4 3"); p.setAttribute("opacity",".75");
+    svg.appendChild(p);
+    var dot=document.createElementNS(NS,"circle");
+    dot.setAttribute("cx",x2.toFixed(1)); dot.setAttribute("cy",y2.toFixed(1));
+    dot.setAttribute("r","2.6"); dot.setAttribute("fill","#BC2F2F");
+    svg.appendChild(dot);
+  });
+}
+window.addEventListener("resize",function(){ if(annotItems.length) drawAnnotLinks(); });
+function resetCritique(){
+  critiqueTimers.forEach(clearTimeout); critiqueTimers=[];
+  annotItems=[];
+  var svg=$("annotSvg"); if(svg){ svg.innerHTML=""; svg.style.display="none"; }
+  var inner=$("resumeInner"); if(!inner) return;
+  Array.prototype.forEach.call(inner.querySelectorAll(".mnum,.aiword,.mbubble"),function(el){ el.classList.remove("show"); });
+  var v=$("rverdict"); if(v) v.classList.remove("show");
+}
+
+/* ============ 渲染：右栏 ============ */
+function applyRepl(t,repl){
+  var text=esc(t);
+  var list=(repl||[]).slice().sort(function(a,b){return b.word.length-a.word.length;});
+  if(!list.length) return text;
+  var re=new RegExp("("+list.map(function(r){return escR(r.word);}).join("|")+")","g");
+  text=text.replace(re,function(m){
+    for(var i=0;i<list.length;i++){ if(list[i].word===m) return "\u0001"+i+"\u0001"; }
+    return m;
+  });
+  text=text.replace(/\u0001(\d+)\u0001/g,function(mm,idx){
+    var r=list[parseInt(idx,10)];
+    return '<span class="fix" title="原词：'+esc(r.word)+'">'+esc(r.fix)+'</span>';
+  });
+  return text;
+}
+/* 右栏句子渲染：未处理句按改写输出（模型改写优先，否则本地规则），无同行按钮 */
+function rightSent(s,i,sentRepl,rewrites){
+  if(rewrites&&rewrites[i]!=null&&rewrites[i]!==undefined) return esc(rewrites[i]);
+  return applyRepl(s.t,sentRepl[i]);
+}
+/* 本地模式：与左栏同构渲染，按模块输出 */
+function renderRightLocal(text,sentRepl,rewrites){
+  var info=makeSents(text);
+  mods=makeMods(info);
+  var h="";
+  if(info.name) h+="<div class=\"oname\">"+esc(info.name)+"</div>";
+  if(info.meta) h+="<div class=\"ometa\">"+esc(info.meta)+"</div>";
+  h+="<div class=\"optbody\" id=\"optBody\">";
+  mods.forEach(function(mo,m){
+    var st=modStates[m];
+    if(mo.h) h+="<h4 data-mod=\""+m+"\">"+esc(mo.h)+"</h4>";
+    if(st&&st.lock){
+      var label=st.lock==="peer"?"同行版":(st.lock==="lock"?"锁定":(st.lock==="edit"?"已编辑":"保持原样"));
+      h+="<div class=\"modbody\" data-seq=\""+mo.si+"\" data-mod=\""+m+"\"><span class=\"lk-badge b-"+st.lock+"\">"+label+"</span>"+esc(st.text)+"</div>";
+      return;
+    }
+    var inUl=false;
+    for(var k=mo.si+1;k<(mo.end===undefined?info.sents.length:mo.end);k++){
+      var s=info.sents[k];
+      var rh=rightSent(s,k,sentRepl,rewrites);
+      if(s.li){
+        if(!inUl){ h+="<ul>"; inUl=true; }
+        h+="<li data-seq=\""+k+"\" data-line=\""+s.line+"\">"+rh+"</li>";
+      }else{
+        if(inUl){ h+="</ul>"; inUl=false; }
+        h+="<p data-seq=\""+k+"\" data-line=\""+s.line+"\">"+rh+"</p>";
+      }
+    }
+    if(inUl) h+="</ul>";
+  });
+  h+="</div>";
+  return h;
+}
+/* 模型模式：按返回 markdown 渲染（无逐句对应） */
+function renderRightModel(optText){
+  var pb=parseBlocks(optText);
+  var h="";
+  if(pb.name) h+="<div class=\"oname\">"+esc(pb.name)+"</div>";
+  if(pb.meta) h+="<div class=\"ometa\">"+esc(pb.meta)+"</div>";
+  h+="<div class=\"optbody\" id=\"optBody\">";
+  var hasUl=false;
+  pb.blocks.forEach(function(b){
+    if(b.type==="li"){ if(!hasUl){ h+="<ul>"; hasUl=true; } h+="<li>"+esc(b.text)+"<button class=\"peer-ic\" type=\"button\" title=\"看同行怎么写\">同行</button></li>"; }
+    else{ if(hasUl){ h+="</ul>"; hasUl=false; } h+=(b.type==="h"?"<h4>"+esc(b.text)+"</h4>":"<p>"+esc(b.text)+"<button class=\"peer-ic\" type=\"button\" title=\"看同行怎么写\">同行</button></p>"); }
+  });
+  if(hasUl) h+="</ul>";
+  h+="</div>";
+  return h;
+}
+function mdStrip(l){
+  return l.replace(/^#{1,4}\s*/,"").replace(/\*\*(.+?)\*\*/g,"$1").replace(/\*(.+?)\*/g,"$1");
+}
+function parseBlocks(text){
+  var lines=text.split(/\r?\n/).map(function(l){return l.trim();}).filter(function(l){return l.length;});
+  var blocks=[]; var name=null; var meta=null;
+  lines.forEach(function(l,i){
+    var c=mdStrip(l);
+    if(i===0 && c.length<=10 && !/[。！？，,;；:]/.test(c)){ name=c; return; }
+    if(i===1 && name && c.length<=34 && !/[。！？;；:]/.test(c)){ meta=c; return; }
+    var isH = c.length<=44 && (/[（(]?19|20\d{2}/.test(c)||/^(教育|工作|项目|实习|校园|技能|自我评价|荣誉|证书|学历|培训|作品|个人简介|基本信息|联系方式|经历)/.test(c)||/^[#\d一二三四五六七八九十]+[、.．]?/.test(c));
+    var isLi = /^[-•*▪◦·]|\d+[.、]/.test(c);
+    if(isH) blocks.push({type:"h",text:c});
+    else if(isLi) blocks.push({type:"li",text:c.replace(/^[-•*▪◦·]\s*/,"").replace(/^\d+[.、]\s*/,"")});
+    else blocks.push({type:"p",text:c});
+  });
+  return {name:name,meta:meta,blocks:blocks};
+}
+function renderRight(optText,sentRepl,rewrites,src,annos){
+  $("optEmpty").style.display="none";
+  var inner=$("optInner"); inner.style.display="block";
+  setOptBar("generated");
+  var h=src==="local" ? renderRightLocal(optText,sentRepl,rewrites) : renderRightModel(optText);
+  if(src==="local"){
+    h+="<div class=\"srcnote\">未处理模块按批注改写（绿色下划线为替换词，悬停看原词）；标\"同行版 / 锁定 / 已编辑 / 保持原样\"的模块原样保留。点击句子可与左栏对照，多轮处理不会互相覆盖。</div>";
+  }else if(src==="model"){
+    h+="<div class=\"srcnote\">模型生成版：结构与原文可能不完全一致，因此不提供逐句连接线，可手动编辑保存。</div>";
+  }
+  inner.innerHTML=h;
+  $("optStatus").textContent="";
+}
+
+/* ============ 右栏操作状态机：按钮按状态出现 ============
+ * none      未生成：操作栏隐藏
+ * generated 已生成未编辑：编辑 / 下载
+ * editing   编辑中：保存 / 取消 / 下载
+ * saved     已保存：编辑 / 恢复默认 / 下载
+ */
+var optState="none";
+var optBackup="";
+function setOptBar(st){
+  optState=st;
+  var bar=$("optBar"); if(!bar) return;
+  bar.style.display= st==="none" ? "none" : "flex";
+  var show=function(id,on){ var b=$(id); if(b) b.style.display=on?"inline-flex":"none"; };
+  show("btnEdit", st==="generated"||st==="saved");
+  show("btnSaveOpt", st==="editing");
+  show("btnCancelOpt", st==="editing");
+  show("btnResetOpt", st==="saved");
+  show("btnDownload", st!=="none");
+}
+var editing=false;
+function setEditing(on){
+  editing=on;
+  var b=$("optBody");
+  if(b){ b.contentEditable=on; b.classList.toggle("editing",on); }
+  if(on&&b) b.focus();
+}
+function textKey(t){ var n=norm(t); return n.slice(0,40)+"_"+n.length; }
+function savedKey(){ var t=$("resumeText").value.trim(); return t?("hrbiz_opt_"+textKey(t)):null; }
+$("btnEdit").addEventListener("click",function(){
+  var b=$("optBody"); if(!b){ toast("请先生成 HR 推荐版"); return; }
+  optBackup=b.innerHTML;
+  setEditing(true);
+  setOptBar("editing");
+  $("optStatus").textContent="编辑中：改完点保存，放弃点取消";
+});
+$("btnSaveOpt").addEventListener("click",function(){
+  var k=savedKey();
+  if(!k){ toast("请先批改一份简历"); return; }
+  var b=$("optBody");
+  if(!b){ toast("右栏还没有内容"); return; }
+  try{ localStorage.setItem(k,b.innerHTML); }catch(e){ toast("保存失败（浏览器存储不可用）"); return; }
+  setEditing(false);
+  setOptBar("saved");
+  toast("已保存到本地浏览器（刷新或重新批改同份简历会自动恢复）");
+  $("optStatus").textContent="已保存于 "+new Date().toLocaleTimeString();
+});
+$("btnCancelOpt").addEventListener("click",function(){
+  var b=$("optBody");
+  if(b&&optBackup){ b.innerHTML=optBackup; }
+  setEditing(false);
+  setOptBar("generated");
+  $("optStatus").textContent="已取消编辑，恢复生成版";
+  toast("已取消编辑");
+});
+/* ============ 下载 PDF（原生 canvas 排版 → JPEG → PDF，零依赖） ============ */
+function pdfRows(){
+  var inner=$("optInner"); if(!inner) return [];
+  var rows=[];
+  var n=inner.querySelector(".oname"),m=inner.querySelector(".ometa");
+  if(n&&n.textContent.trim()) rows.push({st:"name",txt:n.textContent.trim()});
+  if(m&&m.textContent.trim()) rows.push({st:"meta",txt:m.textContent.trim()});
+  var body=inner.querySelector("#optBody"); if(!body) return rows;
+  Array.prototype.forEach.call(body.children,function(ch){
+    if(ch.tagName==="H4") rows.push({st:"h",txt:ch.textContent.replace(/\s+/g," ").trim()});
+    else if(ch.tagName==="UL"){ Array.prototype.forEach.call(ch.children,function(li){ rows.push({st:"li",txt:li.textContent.replace(/\s+/g," ").trim()}); }); }
+    else if(ch.tagName==="P") rows.push({st:"p",txt:ch.textContent.replace(/\s+/g," ").trim()});
+  });
+  return rows;
+}
+function pdfLayout(rows,size){
+  var W=595,H=842,ML=46,MR=46,MT=44,MB=40;
+  var cw=W-ML-MR, ch=H-MT-MB;
+  var cv=document.createElement("canvas");
+  cv.width=W*2; cv.height=H*2;
+  var ctx=cv.getContext("2d");
+  ctx.scale(2,2);
+  ctx.fillStyle="#FFFFFF"; ctx.fillRect(0,0,W,H);
+  var y=MT, ok=true;
+  var style={
+    name:{size:Math.max(14,size*2.1),weight:900,gap:6,color:"#2B2623"},
+    meta:{size:Math.max(9,size*1.15),weight:400,gap:8,color:"#7A6F66"},
+    h:{size:Math.max(9.5,size*1.25),weight:900,gap:5,space:12,color:"#2B2623",bar:"#2F6B4F"},
+    p:{size:Math.max(8.5,size),gap:3.5,line:1.6,color:"#3A342E"},
+    li:{size:Math.max(8.5,size),gap:3.5,line:1.6,color:"#3A342E",bullet:true}
+  };
+  function drawLines(opt,text,x,indent){
+    ctx.font=(opt.weight?opt.weight+" ":"")+opt.size+"pt 'Noto Serif SC','SimSun',serif";
+    ctx.fillStyle=opt.color;
+    var words=Array.from(text); var cur="";
+    function put(){
+      ctx.fillText(cur,x+indent,y+opt.size*0.82);
+      y+=opt.size*opt.line||opt.size*1.6;
+    }
+    for(var i=0;i<words.length;i++){
+      if(cur&&ctx.measureText(cur+words[i]).width>cw-indent){ put(); cur=""; }
+      cur+=words[i];
+    }
+    if(cur) put();
+  }
+  rows.forEach(function(r){
+    var o=style[r.st]; if(!o){ y+=4; return; }
+    if(y>H-MB){ ok=false; return; }
+    if(r.st==="h"){
+      ctx.fillStyle=o.bar; ctx.fillRect(ML,y+2,3,o.size*1.15);
+      ctx.font=o.weight+" "+o.size+"pt 'Noto Serif SC','SimSun',serif";
+      ctx.fillStyle=o.color;
+      ctx.fillText(r.txt,ML+8,y+o.size*0.85);
+      y+=o.size*1.6+o.space;
+    }else if(r.st==="li"){
+      ctx.fillStyle="#2F6B4F";
+      ctx.beginPath(); ctx.arc(ML+3,y+o.size*0.5,1.8,0,Math.PI*2); ctx.fill();
+      drawLines(o,r.txt,ML,12);
+      y+=o.gap;
+    }else if(r.st==="name"){
+      ctx.font=o.weight+" "+o.size+"pt 'Noto Serif SC','SimSun',serif";
+      ctx.fillStyle=o.color;
+      ctx.fillText(r.txt,ML,y+o.size*0.85);
+      y+=o.size*1.3+o.gap;
+    }else if(r.st==="meta"){
+      ctx.font=o.size+"pt 'Noto Serif SC','SimSun',serif";
+      ctx.fillStyle=o.color;
+      ctx.fillText(r.txt,ML,y+o.size*0.85);
+      y+=o.size*1.6+o.gap;
+    }else{
+      drawLines(o,r.txt,ML,0);
+      y+=o.gap;
+    }
+  });
+  if(!ok) return null;
+  return {cv:cv,W:W,H:H};
+}
+function exportPdf(){
+  var rows=pdfRows();
+  if(!rows.length){ toast("右栏还没有内容"); return; }
+  var size=11, out=null;
+  for(var s=11;s>=8;s-=0.5){ out=pdfLayout(rows,s); if(out) break; }
+  if(!out){ toast("内容过长，无法压缩到一页，请精简后重试"); return; }
+  var jpeg=out.cv.toDataURL("image/jpeg",0.92).split(",")[1];
+  var bin=atob(jpeg);
+  var jU8=new Uint8Array(bin.length);
+  for(var i=0;i<bin.length;i++) jU8[i]=bin.charCodeAt(i);
+  var parts=[]; var offs=[];
+  function push(s){ parts.push({t:"s",s:s}); }
+  function len(){ var L=0; for(var k=0;k<parts.length;k++) L+=parts[k].t==="s"?parts[k].s.length:parts[k].u.length; return L; }
+  push("%PDF-1.4\n");
+  function obj(n,body){ offs[n]=len(); push(n+" 0 obj\n"+body+"\nendobj\n"); }
+  obj(1,"<< /Type /Catalog /Pages 2 0 R >>");
+  obj(2,"<< /Type /Pages /Kids [3 0 R] /Count 1 >>");
+  obj(3,"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 "+out.W+" "+out.H+"] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>");
+  offs[4]=len();
+  push("4 0 obj\n<< /Type /XObject /Subtype /Image /Width "+out.cv.width+" /Height "+out.cv.height+" /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length "+jU8.length+" >>\nstream\n");
+  parts.push({t:"b",u:jU8});
+  push("\nendstream\nendobj\n");
+  obj(5,"<< /Length "+("q "+out.W+" 0 0 "+out.H+" 0 0 cm /Im0 Do Q").length+" >>\nstream\nq "+out.W+" 0 0 "+out.H+" 0 0 cm /Im0 Do Q\nendstream");
+  var xref=len();
+  push("xref\n0 6\n0000000000 65535 f \n");
+  for(var k=1;k<=5;k++) push(("0000000000"+offs[k]).slice(-10)+" 00000 n \n");
+  push("trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n"+xref+"\n%%EOF");
+  var total=len();
+  var u8=new Uint8Array(total); var p=0;
+  for(var j=0;j<parts.length;j++){
+    if(parts[j].t==="s"){ for(var c=0;c<parts[j].s.length;c++) u8[p++]=parts[j].s.charCodeAt(c)&0xFF; }
+    else{ u8.set(parts[j].u,p); p+=parts[j].u.length; }
+  }
+  var name=(($("optInner").querySelector(".oname")||{}).textContent||"").trim()||"简历";
+  var blob=new Blob([u8],{type:"application/pdf"});
+  var a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download=name+"-HR优化版.pdf";
+  document.body.appendChild(a); a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },300);
+  toast("已下载一页纸 PDF（"+size.toFixed(1)+"pt 排版）");
+}
+$("btnDownload").addEventListener("click",exportPdf);
+
+/* ============ 同行写法（句子级：参考别人的写法，替换回左栏原稿） ============ */
+var PEER_FIX={"深度赋能":"负责","全面拉通":"协调","完整闭环":"跑通全流程","显著提升":"提升（补真实数字）","进一步放大":"带动","精细化":"细致","矩阵化":"多线","势能":"增长","赋能":"支持","拉通":"协同","闭环":"形成流程","抓手":"手段","对齐":"同步","落地":"执行","复盘":"总结","沉淀":"整理","抽象":"提炼","助力":"帮助","触达":"联系","心智":"需求","护城河":"优势"};
+function peerLocal(text){
+  var clean=function(l){ return l.replace(/深度赋能|全面拉通|完整闭环|显著提升|进一步放大|精细化|矩阵化|势能|赋能|拉通|闭环|抓手|对齐|落地|复盘|沉淀|抽象|助力|触达|心智|护城河/g,function(w){ return PEER_FIX[w]||w; }); };
+  var lines=text.split("\n").filter(function(l){return l.trim();});
+  var head=null;
+  if(lines.length&&/[·:：]/.test(lines[0])&&lines[0].length<40){ head=lines.shift().trim(); }
+  var body=lines.join("\n");
+  var mk=function(f){ return head?(head+"\n"+f):f; };
+  var styles=[
+    {name:"数据驱动版",salary:25,why:"HR 扫简历只看数字和结果：这版每句都有可量化的产出，10 秒内就能定位你的价值。",
+     body:mk(body.split("\n").filter(function(l){return l.trim();}).map(clean).join("\n"))},
+    {name:"业务价值版",salary:20,why:"HR 关心你能给业务带来什么：这版把每件事都挂到业务增长与用户价值上。",
+     body:mk(body.split("\n").filter(function(l){return l.trim();}).map(function(l){ return "围绕业务增长，"+(clean(l).replace(/[。！？]?\s*$/,""))+"，直接贡献 GMV / 用户规模增长（补真实数据）"; }).join("\n"))},
+    {name:"大厂简洁版",salary:35,why:"大厂简历标准句式：动词开头、一句一事、删掉修饰词，信息密度最高。",
+     body:mk(body.split("\n").filter(function(l){return l.trim();}).map(function(l){ return clean(l).replace(/作为[^，,]*，|注重[^，,]*，|在此期间，|同时，|通过[^，,]*，/g,"").replace(/\s+/g," "); }).join("\n"))}
+  ];
+  return {src:"内置模板",styles:styles};
+}
+function peerAI(text){
+  var prompt="你是一名资深 HR 和简历顾问。下面是求职者简历里一个完整模块的内容（标题之外的部分）：\n---\n"+text+"\n---\n请保持内容是他自己的真实经历（不编造新经历），仅换表达方式，用三种不同风格各重写这个模块一遍：1 数据驱动版（带量化结果）2 业务价值版（强调对业务/收入/用户的价值）3 大厂简洁版（短句、动词开头，逐条）。每种风格附一句\"HR 为什么选它\"点评，并给出该写法对应的薪资档位 salary（数字，单位 k/月，如 15、25、35）。严格只输出 JSON：{\"styles\":[{\"name\":\"数据驱动版\",\"body\":\"改写后的模块内容\",\"why\":\"HR 为什么选：...\",\"salary\":25}]}";
+  return chatJSON(prompt).then(function(data){
+    if(!data||!data.styles||!data.styles.length) throw new Error("bad");
+    return {src:"AI 生成",styles:data.styles};
+  }).catch(function(){ return peerLocal(text); });
+}
+var peerCurrent=null;
+function openPeerFor(orig){
+  if(!orig||!orig.trim()){ toast("请先批改一份简历"); return; }
+  peerCurrent={orig:orig.trim()};
+  $("peerOrig").textContent=peerCurrent.orig;
+  $("peerMask").classList.add("show");
+  $("peerStyles").innerHTML="<div class='peer-loading'>正在生成同行写法…</div>";
+  var p=hasModel()?peerAI(peerCurrent.orig):Promise.resolve(peerLocal(peerCurrent.orig));
+  p.then(function(data){
+    var styles=data.styles.slice().sort(function(a,b){ return (b.salary||0)-(a.salary||0); });
+    peerCurrent.styles=styles; peerCurrent.src=data.src;
+    var html="";
+    styles.forEach(function(st,k){
+      var sal=st.salary?('<span class="peer-salary">'+esc(st.salary)+'k 级别</span>'):"";
+      html+="<div class='peer-card'><div class='peer-top'><span class='peer-name'>"+esc(st.name)+"</span>"+sal+"<span class='peer-badge'>"+(k===0?"HR 优选":"备选")+"</span></div><div class='peer-why'>"+esc(st.why||"")+"</div><div class='peer-body'>"+esc(st.body)+"</div><div class='peer-actions'><button class='btn btn-ghost btn-sm' data-pk='"+k+"' type='button'>替换整个模块</button><span class='peer-src'>"+esc(data.src||"")+"</span></div></div>";
+    });
+    $("peerStyles").innerHTML=html;
+    Array.prototype.forEach.call($("peerStyles").querySelectorAll("[data-pk]"),function(btn){
+      btn.addEventListener("click",function(){ applyPeer(parseInt(btn.getAttribute("data-pk"),10)); });
+    });
+  }).catch(function(){ toast("同行写法生成失败，请重试"); });
+}
+function applyPeer(k){
+  if(!peerCurrent||!peerCurrent.styles) return;
+  var st=peerCurrent.styles[k]; if(!st) return;
+  var ta=$("resumeText");
+  var text=ta.value.trim();
+  if(text.indexOf(peerCurrent.orig)===-1){ toast("该模块内容已不在简历中，请重新批改后再试"); return; }
+  var info=makeSents(text); mods=makeMods(info);
+  var m=-1;
+  for(var i=0;i<mods.length;i++){ if(modText(i,info)===peerCurrent.orig){ m=i; break; } }
+  if(m<0){ toast("找不到对应模块，请重新批改后再试"); return; }
+  var mo=mods[m];
+  var newMod=(st.body||"").trim();
+  if(mo.h){
+    var first=newMod.split("\n")[0].trim();
+    if(newMod.indexOf(mo.h)!==0&&first!==mo.h){ newMod=mo.h+"\n"+newMod; }
+  }
+  ta.value=ta.value.replace(peerCurrent.orig,newMod);
+  pendingPeerMap[newMod]=true;
+  $("peerMask").classList.remove("show");
+  runPipeline(lastSource==="model");
+  toast("已替换为\"同行版\"（点\"锁定\"定稿，AI 生成右侧时原样保留）："+st.name);
+}
+/* 模块级入口：点击模块标题旁"同行 / 保持原样 / 锁定 / 撤销"按钮 */
+document.addEventListener("click",function(e){
+  var t=e.target.closest?e.target.closest(".peer-ic,.undo-ic,.lock-ic"):null;
+  if(!t) return;
+  e.stopPropagation();
+  var pm=t.getAttribute("data-mod");
+  if(pm==null||pm===""){ toast("这是右栏 AI 生成后的内容，处理请回到左侧原稿"); return; }
+  var m=parseInt(pm,10);
+  var info=makeSents($("resumeText").value.trim()); mods=makeMods(info);
+  if(t.classList.contains("peer-ic")){ openPeerFor(modText(m,info)); }
+  else if(t.classList.contains("lock-ic")){ lockPeerMod(m); }
+  else if(t.classList.contains("undo-ic")){ undoMod(m); }
+});
+$("btnClosePeer").addEventListener("click",function(){ $("peerMask").classList.remove("show"); });
+$("peerMask").addEventListener("click",function(e){ if(e.target===this) this.classList.remove("show"); });
+$("btnResetOpt").addEventListener("click",function(){
+  var k=savedKey();
+  if(k){ try{ localStorage.removeItem(k); }catch(e){} }
+  var text=$("resumeText").value.trim();
+  if(!text){ toast("请先批改一份简历"); return; }
+  genOpt();
+  $("optStatus").textContent="已恢复默认生成结果";
+  toast("已恢复默认生成结果（左栏模块处理状态保留）");
+});
+
+/* ============ 左右关联 ============ */
+var linkLines=[];
+function clearLink(){
+  linkLines.forEach(function(l){ if(l.parentNode) l.parentNode.removeChild(l); });
+  linkLines=[];
+  var svg=$("linkSvg"); if(svg) svg.style.display="none";
+  Array.prototype.forEach.call(document.querySelectorAll(".hl,.hlr"),function(el){ el.classList.remove("hl","hlr"); });
+}
+function stagePos(el){
+  var sr=$("stage").getBoundingClientRect();
+  var er=el.getBoundingClientRect();
+  return {x:er.left-sr.left,y:er.top-sr.top,w:er.width,h:er.height};
+}
+function linkPair(seq,side){
+  var l=document.querySelector(".rbody [data-seq=\""+seq+"\"]");
+  var r=document.querySelector(".optbody [data-seq=\""+seq+"\"]");
+  var isWide=!window.matchMedia||window.matchMedia("(min-width:901px)").matches;
+  if(!isWide){ /* 窄屏：只高亮 */
+    if(l) l.classList.add("hl");
+    if(r) r.classList.add("hlr");
+    return;
+  }
+  clearLink();
+  if(!l||!r){ if(l) l.classList.add("hl"); return; }
+  l.classList.add("hl"); r.classList.add("hlr");
+  var svg=$("linkSvg"); svg.style.display="block";
+  var lp=stagePos(l), rp=stagePos(r);
+  var ns="http://www.w3.org/2000/svg";
+  var x1=lp.x+lp.w, y1=lp.y+lp.h/2;
+  var x2=rp.x, y2=rp.y+rp.h/2;
+  var d=Math.max(36,(x2-x1)*0.55);
+  var path=document.createElementNS(ns,"path");
+  path.setAttribute("d","M "+x1+" "+y1+" C "+(x1+d)+" "+y1+", "+(x2-d)+" "+y2+", "+x2+" "+y2);
+  path.setAttribute("fill","none");
+  path.setAttribute("stroke",side==="left"?"#BC2F2F":"#2F6B4F");
+  path.setAttribute("stroke-width","1.6");
+  path.setAttribute("stroke-dasharray","5 4");
+  path.setAttribute("opacity","0.9");
+  svg.appendChild(path); linkLines.push(path);
+  [ [x1,y1,"#BC2F2F"], [x2,y2,"#2F6B4F"] ].forEach(function(pt){
+    var c=document.createElementNS(ns,"circle");
+    c.setAttribute("cx",pt[0]); c.setAttribute("cy",pt[1]); c.setAttribute("r","3.2");
+    c.setAttribute("fill",pt[2]);
+    svg.appendChild(c); linkLines.push(c);
+  });
+}
+$("stage").addEventListener("click",function(e){
+  if(editing){ clearLink(); return; }
+  if(optState==="none"){ return; }
+  var el=e.target&&e.target.closest? e.target.closest("[data-seq]") : null;
+  if(!el){ clearLink(); return; }
+  var seq=el.getAttribute("data-seq");
+  if(seq==null) return;
+  var inRight=!!el.closest(".optbody");
+  linkPair(seq,inRight?"right":"left");
+});
+
+/* ============ 事件 ============ */
+$("btnGo").addEventListener("click",function(){ runPipeline(hasModel()); });
+$("btnGenOpt").addEventListener("click",genOpt);
+$("btnReplay").addEventListener("click",function(){
+  var text=$("resumeText").value.trim();
+  if(!text){ toast("先粘贴或上传一份简历"); return; }
+  runPipeline(hasModel());
+});
+$("btnSample").addEventListener("click",function(){
+  $("resumeText").value=SAMPLE;
+  toast("示例已填入，点\"开始批改\"");
+  $("hint").classList.remove("err");
+});
+$("btnClear").addEventListener("click",function(){
+  $("resumeText").value=""; clearLink();
+  SNAPSHOT=""; modStates=[]; mods=[];
+});
+$("fileInput").addEventListener("change",function(e){
+  var f=e.target.files[0]; if(!f) return;
+  var name=f.name.toLowerCase();
+  if(/\.(txt|md)$/.test(name)){
+    var rd=new FileReader();
+    rd.onload=function(){ $("resumeText").value=rd.result; toast("已读取 "+f.name+"，正在批注…"); runPipeline(hasModel()); };
+    rd.readAsText(f,"utf-8");
+  }else if(/\.pdf$/.test(name)){
+    pdfTextFromBuf(f).then(function(res){
+      if(res.error){ toast(res.error); return; }
+      $("resumeText").value=res.text;
+      toast("已从 PDF 提取文本（"+res.text.length+" 字），正在批注…");
+      runPipeline(hasModel());
+    }).catch(function(){ toast("PDF 解析失败，请另存为 txt"); });
+  }else{
+    toast("暂不支持该格式，请用 .txt / .md / .pdf");
+  }
+  e.target.value="";
+});
+/* ============ PDF 文本提取（PDF.js，纯前端，无需后端） ============ */
+function loadPdfJs(cb){
+  if(window.pdfjsLib){ cb(); return; }
+  var s=document.createElement("script");
+  s.src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js";
+  s.onload=function(){
+    pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js";
+    cb();
+  };
+  s.onerror=function(){ toast("PDF 解析库加载失败（需联网），请将内容粘贴为文本"); };
+  document.head.appendChild(s);
+}
+function pdfTextFromBuf(file){
+  return new Promise(function(resolve){
+    loadPdfJs(function(){
+      file.arrayBuffer().then(function(buf){
+        var task=pdfjsLib.getDocument({data:buf});
+        task.promise.then(function(doc){
+          var lines=[]; var i=1;
+          function next(){
+            if(i>doc.numPages){
+              var text=lines.join("\n").replace(/\n{3,}/g,"\n\n").trim();
+              var zh=(text.match(/[\u4e00-\u9fa5]/g)||[]).length;
+              if(!text) resolve({error:"未从该 PDF 提取到文本（可能是扫描件），请粘贴文本或另存为 txt"});
+              else if(zh<text.length*0.2) resolve({error:"该 PDF 没有可用的文本层（可能是图片型/扫描件），请粘贴文本或另存为 txt"});
+              else resolve({text:text});
+              return;
+            }
+            doc.getPage(i).then(function(pg){
+              pg.getTextContent().then(function(tc){
+                var line="";
+                tc.items.forEach(function(it){
+                  if(it.str){ line+=it.str; }
+                  if(it.hasEOL){ lines.push(line); line=""; }
+                });
+                if(line) lines.push(line);
+                i++; next();
+              });
+            });
+          }
+          next();
+        }).catch(function(){ resolve({error:"PDF 解析失败，请将内容粘贴为文本"}); });
+      }).catch(function(){ resolve({error:"PDF 读取失败"}); });
+    });
+  });
+}
+
+/* ============ 示例 ============ */
+var SAMPLE=[
+"张三",
+"求职意向：高级产品运营 ｜ 3 年经验 ｜ 本科",
+"",
+"项目经历 · AIGC 内容平台（2025.03–2026.08）",
+"作为核心成员，深度赋能内容生态建设，全面拉通上下游资源，对齐各团队目标，形成了从选题、生产、分发到回收的完整闭环。",
+"通过矩阵化运营和精细化打磨，显著提升了用户活跃度与留存率，进一步放大了品牌势能。",
+"同时，依托底层逻辑洞察用户心智，精准触达核心场景，实现了流量的全域渗透与高效转化。",
+"在此期间，我注重方法论沉淀，定期组织复盘，将经验抽象为可复用的 SOP，为团队后续项目提供了强有力的支撑，起到了标杆示范作用。",
+"",
+"校园经历",
+"担任学生会宣传部负责人，统筹组织多场大型活动，有效提升了组织协调能力与团队凝聚力，获得了老师与同学的一致好评。",
+"",
+"技能与自我评价",
+"- 熟练掌握各类运营工具，具备较强的数据分析能力与快速学习能力",
+"- 沟通能力强，具有良好的团队协作精神，抗压能力强"
+].join("\n");
+$("resumeText").value=SAMPLE;
+updateNote();
+/* 进页自动用示例跑一遍本地批注，直接展示作品效果 */
+setTimeout(function(){ runPipeline(false); }, 400);
+})();
+</script>
+</body>
+</html>

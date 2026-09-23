@@ -1,0 +1,13 @@
+{
+  "name": "resume-detox",
+  "version": "1.0.0",
+  "private": true,
+  "description": "简历 AI 味检测器：纯前端 + 零依赖 Node CORS 代理",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
